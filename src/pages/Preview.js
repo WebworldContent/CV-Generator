@@ -1,11 +1,53 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "../assets/css/cvStyle.css";
 import { Header } from "../components/Header";
+import { PreviewButtons } from "../components/PreviewButtons";
+import useLocalStorage from "../components/helpers/customeHook";
+import CVContext from "../context/CVContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Preview() {
+  const [data, setData] = useState({});
+  const { getItem } = useLocalStorage();
+  const { cvInfo, setCVInfo } = useContext(CVContext);
+  const navigate = useNavigate();
+
+  console.log(data);
+
+  useEffect(() => {
+    const fetchCVData = () => {
+      const cvData = {};
+      const collection = ["personal", "education", "experience", "skill"];
+      collection.forEach((key) => {
+        cvData[key] = getItem(key);
+      });
+
+      return cvData;
+    };
+
+    const isCVEmpty = Object.keys(cvInfo).length;
+    const isFetchDataEmpty = Object.values(fetchCVData).every(
+      (item) => Object.keys(item).length === 0
+    );
+
+    if (isCVEmpty && isFetchDataEmpty) {
+      navigate("/");
+    }
+
+    if (isCVEmpty) {
+      setData(cvInfo);
+    } else {
+      setData(fetchCVData());
+      setCVInfo(fetchCVData());
+    }
+  }, []);
+
+  const { personal, education, experience, skill } = data;
+
   return (
     <>
       <Header />
+      <PreviewButtons />
       <div className="container">
         <div className="head">
           <h1>Cadidate Name</h1>

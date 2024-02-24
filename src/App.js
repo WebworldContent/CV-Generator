@@ -13,12 +13,7 @@ const Preview = lazy(() => import("./pages/Preview.js"));
 const Admin = lazy(() => import("./pages/Admin.js"));
 
 function App() {
-  const [cvInfo, setCVInfo] = useState({
-    personal: {},
-    education: {},
-    experience: {},
-    skill: {}
-});
+  const [cvInfo, setCVInfo] = useState({});
 
   return (
     <Suspense fallback={<p>Loading...</p>}>

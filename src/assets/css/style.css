@@ -45,6 +45,10 @@ header {
     color: #f4f4f4;
 }
 
+.sidebar ul a {
+    text-decoration: none;
+}
+
 .sidebar .side-nav-list {
     align-items: left;
     display: flex;
@@ -56,6 +60,9 @@ header {
    margin: 30px;
 }
 
+.sidebar ul li.active {
+    color:#27ae60;
+}
 
 header img {
     width: 100px;

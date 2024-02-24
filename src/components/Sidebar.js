@@ -1,61 +1,65 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-export const Sidebar = () => {
+export const Sidebar = ({ currentPageType }) => {
   const isActive = (path) => {
-    return "education" === path;
+    return currentPageType === path;
   };
 
   return (
     <div className="sidebar">
       <nav>
         <ul className="side-nav-list">
-          <Link to='/admin/personal'>
-            <li className={`side-nav-item ${isActive("/") ? "active" : ""}`}>
-              <span
-                className={`circle ${isActive("/") ? "active-circle" : ""}`}
-              ></span>
-              <span to="/">Personal Info</span>
-            </li>
-          </Link>
-          <Link to='/admin/education'>
+          <Link to="/admin/personal">
             <li
               className={`side-nav-item ${
-                isActive("/education") ? "active" : ""
+                isActive("personal") ? "active" : ""
               }`}
             >
               <span
                 className={`circle ${
-                  isActive("/education") ? "active-circle" : ""
+                  isActive("personal") ? "active-circle" : ""
                 }`}
               ></span>
-              <span to="/education">Education</span>
+              <span>Personal Info</span>
             </li>
           </Link>
-          <Link to='/admin/experience'>
+          <Link to="/admin/education">
             <li
               className={`side-nav-item ${
-                isActive("/experience") ? "active" : ""
+                isActive("education") ? "active" : ""
               }`}
             >
               <span
                 className={`circle ${
-                  isActive("/experience") ? "active-circle" : ""
+                  isActive("education") ? "active-circle" : ""
                 }`}
               ></span>
-              <span to="/experience">Experience</span>
+              <span>Education</span>
             </li>
           </Link>
-          <Link to='/admin/skill'>
+          <Link to="/admin/experience">
             <li
-              className={`side-nav-item ${isActive("/skills") ? "active" : ""}`}
+              className={`side-nav-item ${
+                isActive("experience") ? "active" : ""
+              }`}
             >
               <span
                 className={`circle ${
-                  isActive("/skills") ? "active-circle" : ""
+                  isActive("experience") ? "active-circle" : ""
                 }`}
               ></span>
-              <span to="/skills">Skills</span>
+              <span>Experience</span>
+            </li>
+          </Link>
+          <Link to="/admin/skill">
+            <li
+              className={`side-nav-item ${isActive("skill") ? "active" : ""}`}
+            >
+              <span
+                className={`circle ${isActive("skill") ? "active-circle" : ""}`}
+              ></span>
+              <span>Skills</span>
             </li>
           </Link>
         </ul>

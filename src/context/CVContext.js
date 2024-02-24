@@ -1,10 +1,5 @@
 import { createContext } from "react";
 
-const CVContext = createContext({
-    personal: {},
-    education: {},
-    experience: {},
-    skill: {}
-});
+const CVContext = createContext({});
 
 export default CVContext;

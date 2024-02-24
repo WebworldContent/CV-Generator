@@ -11,10 +11,12 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import CVContext from "../../context/CVContext";
 import { useNavigate } from "react-router-dom";
+import useLocalStorage from "../helpers/customeHook";
 
 export const Education = () => {
   const [education, setEducation] = useState({});
   const { setCVInfo } = useContext(CVContext);
+  const { setItem } = useLocalStorage("education");
   const navigate = useNavigate();
 
   const onChange = (e) => {
@@ -25,6 +27,7 @@ export const Education = () => {
   const onSubmit = (e) => {
     e.preventDefault();
     setCVInfo((cvInfo) => ({ ...cvInfo, education }));
+    setItem(education);
     navigate("/admin/experience");
   };
   return (
@@ -32,73 +35,69 @@ export const Education = () => {
       <Card style={{ height: "100%" }}>
         <CardContent>
           <h1>Education Information</h1>
-          <form className="info-form" onSubmit={onSubmit}>
-            <Box
-              component="form"
-              sx={{
-                "& .MuiTextField-root": { m: 4, width: "25ch" },
-              }}
-              noValidate
-              autoComplete="off"
-            >
-              <TextField
-                label="College Name"
-                name="college"
-                value={education.college || ''}
+          <Box
+            sx={{
+              "& .MuiTextField-root": { m: 4, width: "25ch" },
+            }}
+            noValidate
+            autoComplete="off"
+          >
+            <TextField
+              label="College Name"
+              name="college"
+              value={education.college || ""}
+              onChange={onChange}
+              variant="outlined"
+              required
+            />
+            <TextField
+              label="Field of study"
+              name="studyField"
+              value={education.studyField || ""}
+              onChange={onChange}
+              variant="outlined"
+            />
+            <TextField
+              label="Graduation Year"
+              variant="outlined"
+              name="gradYear"
+              value={education.gradYear}
+              onChange={onChange}
+              placeholder="DD/MM/YYYY"
+              required
+            />
+          </Box>
+          <Box
+            sx={{
+              "& .MuiTextField-root": { m: 4, width: "75ch" },
+            }}
+            noValidate
+            autoComplete="off"
+          >
+            <FormControl style={{ width: 300, marginLeft: 30 }}>
+              <InputLabel id="degree">Degree</InputLabel>
+              <Select
+                labelId="degree"
+                id="degree"
+                value={education.degree || ""}
+                name="degree"
                 onChange={onChange}
-                variant="outlined"
-                required
-              />
-              <TextField
-                label="Field of study"
-                name="studyField"
-                value={education.studyField || ''}
-                onChange={onChange}
-                variant="outlined"
-              />
-              <TextField
-                label="Graduation Year"
-                variant="outlined"
-                name="gradYear"
-                value={education.gradYear}
-                onChange={onChange}
-                placeholder="DD/MM/YYYY"
-                required
-              />
-            </Box>
-            <Box
-              component="form"
-              sx={{
-                "& .MuiTextField-root": { m: 4, width: "75ch" },
-              }}
-              noValidate
-              autoComplete="off"
-            >
-              <FormControl style={{ width: 300, marginLeft: 30 }}>
-                <InputLabel id="degree">Degree</InputLabel>
-                <Select
-                  labelId="degree"
-                  id="degree"
-                  value={education.degree || ''}
-                  name="degree"
-                  onChange={onChange}
-                  label="Degree"
-                  maxRows={4}
-                >
-                  <MenuItem value="Bachelor of Art">Bachelor of Art</MenuItem>
-                  <MenuItem value="Bachelor of Science">
-                    Bachelor of Science
-                  </MenuItem>
-                  <MenuItem value="BBA">BBA</MenuItem>
-                  <MenuItem value="Ph.D">Ph.D</MenuItem>
-                  <MenuItem value="No Degree">No Degree</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-          </form>
+                label="Degree"
+                maxRows={4}
+              >
+                <MenuItem value="Bachelor of Art">Bachelor of Art</MenuItem>
+                <MenuItem value="Bachelor of Science">
+                  Bachelor of Science
+                </MenuItem>
+                <MenuItem value="BBA">BBA</MenuItem>
+                <MenuItem value="Ph.D">Ph.D</MenuItem>
+                <MenuItem value="No Degree">No Degree</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
         </CardContent>
         <CardActions className="buttons">
-          <FormButtons />
+          <FormButtons onSubmit={onSubmit} />
         </CardActions>
       </Card>
     </div>

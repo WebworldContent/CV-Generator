@@ -7,21 +7,24 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import CVContext from "../../context/CVContext";
 import { useNavigate } from "react-router-dom";
+import useLocalStorage from "../helpers/customeHook";
 
 export const PersonalInfo = () => {
   const [personal, setPersonal] = useState({});
   const { setCVInfo } = useContext(CVContext);
+  const { setItem } = useLocalStorage('personal');
   const navigate = useNavigate();
 
   const onChange = (e) => {
-    const {name, value} = e.target;
-    setPersonal((prevPersonal) => ({...prevPersonal, [name]: value}));
+    const { name, value } = e.target;
+    setPersonal((prevPersonal) => ({ ...prevPersonal, [name]: value }));
   };
 
   const onSubmit = (e) => {
     e.preventDefault();
-    setCVInfo((cvInfo) => ({...cvInfo, personal}));
-    navigate('/admin/education');
+    setCVInfo((cvInfo) => ({ ...cvInfo, personal }));
+    setItem(personal);
+    navigate("/admin/education");
   };
 
   return (
@@ -29,81 +32,77 @@ export const PersonalInfo = () => {
       <Card style={{ height: "100%" }}>
         <CardContent>
           <h1>Personal Information</h1>
-          <form className="info-form" onSubmit={onSubmit}>
-            <Box
-              component="form"
-              sx={{
-                "& .MuiTextField-root": { m: 4, width: "25ch" },
-              }}
-              noValidate
-              autoComplete="off"
-            >
-              <TextField
-                id="outlined-basic"
-                label="FullName"
-                value={personal.fullname || ''}
-                name="fullname"
-                variant="outlined"
-                onChange={onChange}
-                required
-              />
-              <TextField
-                id="outlined-basic"
-                label="Profession"
-                name="profession"
-                value={personal.profession || ''}
-                variant="outlined"
-                onChange={onChange}
-                required
-              />
-              <TextField
-                id="outlined-basic"
-                label="Email"
-                value={personal.email || ''}
-                variant="outlined"
-                name="email"
-                onChange={onChange}
-              />
-              <TextField
-                id="outlined-basic"
-                label="Phone"
-                value={personal.phone || ''}
-                name="phone"
-                onChange={onChange}
-                variant="outlined"
-                required
-              />
-              <TextField
-                id="outlined-basic"
-                label="LinkedIn"
-                name="social"
-                value={personal.social || ''}
-                variant="outlined"
-                onChange={onChange}
-              />
-            </Box>
-            <Box
-              component="form"
-              sx={{
-                "& .MuiTextField-root": { m: 4, width: "75ch" },
-              }}
-              noValidate
-              autoComplete="off"
-            >
-              <TextField
-                id="outlined-multiline-flexible"
-                label="Address"
-                value={personal.address || ''}
-                multiline
-                maxRows={4}
-                name="address"
-                onChange={onChange}
-              />
-            </Box>
-          </form>
+          <Box
+            sx={{
+              "& .MuiTextField-root": { m: 4, width: "25ch" },
+            }}
+            noValidate
+            autoComplete="off"
+          >
+            <TextField
+              id="outlined-basic"
+              label="FullName"
+              value={personal.fullname || ""}
+              name="fullname"
+              variant="outlined"
+              onChange={onChange}
+              required
+            />
+            <TextField
+              id="outlined-basic"
+              label="Profession"
+              name="profession"
+              value={personal.profession || ""}
+              variant="outlined"
+              onChange={onChange}
+              required
+            />
+            <TextField
+              id="outlined-basic"
+              label="Email"
+              value={personal.email || ""}
+              variant="outlined"
+              name="email"
+              onChange={onChange}
+            />
+            <TextField
+              id="outlined-basic"
+              label="Phone"
+              value={personal.phone || ""}
+              name="phone"
+              onChange={onChange}
+              variant="outlined"
+              required
+            />
+            <TextField
+              id="outlined-basic"
+              label="LinkedIn"
+              name="social"
+              value={personal.social || ""}
+              variant="outlined"
+              onChange={onChange}
+            />
+          </Box>
+          <Box
+            sx={{
+              "& .MuiTextField-root": { m: 4, width: "75ch" },
+            }}
+            noValidate
+            autoComplete="off"
+          >
+            <TextField
+              id="outlined-multiline-flexible"
+              label="Address"
+              value={personal.address || ""}
+              multiline
+              maxRows={4}
+              name="address"
+              onChange={onChange}
+            />
+          </Box>
         </CardContent>
         <CardActions className="buttons">
-          <FormButtons />
+          <FormButtons onSubmit={onSubmit} />
         </CardActions>
       </Card>
     </div>
