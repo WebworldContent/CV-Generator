@@ -8,7 +8,6 @@ This project is a CV Generator that allows users to create and customize their c
 - [Installation](#installation)
 - [Usage](#usage)
 - [Screenshots](#screenshots)
-- [Contributing](#contributing)
 - [License](#license)
 
 ## Demo
@@ -40,6 +39,10 @@ This project is a CV Generator that allows users to create and customize their c
 4. Download or export your CV in PDF format.
 
 ## Screenshots
+
+![Screenshot](./screenshots/shot1.png)
+![Screenshot](./screenshots/shot2.png)
+![Screenshot](./screenshots/shot3.png)
 
 ## License
 This project is licensed under the MIT License.
