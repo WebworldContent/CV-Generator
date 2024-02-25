@@ -26,7 +26,7 @@ export const Education = () => {
     if (hasStoredInfo) {
       setEducation(storedData);
     }
-  }, []);
+  }, [getItem]);
 
   const validateForm = () => {
     const newErrors = {};

@@ -23,7 +23,7 @@ export const PersonalInfo = () => {
     if (hasStoredPersonalInfo) {
       setPersonal(storedData);
     }
-  }, []);
+  }, [getItem]);
 
   const validateForm = () => {
     const newErrors = {};

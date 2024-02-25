@@ -22,7 +22,7 @@ export const Experience = () => {
     if (hasStoredInfo) {
       setExperience(storedData);
     }
-  }, []);
+  }, [getItem]);
 
   const validateForm = () => {
     const newErrors = {};

@@ -49,7 +49,7 @@ export const Skills = () => {
       setSkillInfo(storedData);
       setSkills(storedData.skills || []);
     }
-  }, []);
+  }, [getItem]);
 
   const validateForm = () => {
     const newErrors = {};

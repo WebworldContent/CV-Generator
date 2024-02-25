@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import "../assets/css/cvStyle.css";
 import { Header } from "../components/Header";
 import { PreviewButtons } from "../components/PreviewButtons";
@@ -14,26 +14,27 @@ export default function Preview() {
   const { getItem } = useLocalStorage();
   const navigate = useNavigate();
 
+  const fetchCVData = useCallback(() => {
+    setLoading(true);
+    try {
+      const cvData = {};
+      const collection = ["personal", "education", "experience", "skill"];
+      collection.forEach((key) => {
+        cvData[key] = getItem(key);
+      });
+  
+      return cvData;
+    } catch (error) {
+      console.log(error);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  }, [getItem]);
+
   useEffect(() => {
-    const fetchCVData = () => {
-      try {
-        setLoading(true);
-        const cvData = {};
-        const collection = ["personal", "education", "experience", "skill"];
-        collection.forEach((key) => {
-          cvData[key] = getItem(key);
-        });
-
-        return cvData;
-      } catch (error) {
-        console.log(error);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const isFetchDataEmpty = Object.values(fetchCVData()).every(
+    const data = fetchCVData()
+    const isFetchDataEmpty = Object.values(data).every(
       (item) => item === undefined
     );
 
@@ -42,8 +43,8 @@ export default function Preview() {
       return;
     }
 
-    setData(fetchCVData());
-  }, []);
+    setData(data);
+  }, [navigate, fetchCVData]);
 
   const handlePrint = () => {
     setHideForPrint(true);
