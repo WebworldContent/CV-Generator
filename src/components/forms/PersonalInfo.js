@@ -1,19 +1,55 @@
-import React, { useContext, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FormButtons } from "./FormButtons";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
-import CVContext from "../../context/CVContext";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import useLocalStorage from "../helpers/customeHook";
 
 export const PersonalInfo = () => {
   const [personal, setPersonal] = useState({});
-  const { setCVInfo } = useContext(CVContext);
-  const { setItem } = useLocalStorage('personal');
+  const [errors, setErrors] = useState({});
+  const { state = {} } = useLocation();
+  const { getItem, setItem } = useLocalStorage("personal");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const storedData = getItem("personal");
+    const hasStoredPersonalInfo =
+      !!storedData && Object.keys(storedData).length > 0;
+
+    if (hasStoredPersonalInfo) {
+      setPersonal(storedData);
+    }
+  }, []);
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!personal.fullname) {
+      newErrors.fullname = "Full Name is required";
+    }
+
+    if (!personal.profession) {
+      newErrors.profession = "Profession is required";
+    }
+
+    if (!personal.email) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(personal.email)) { // Regex for email type checking
+      newErrors.email = "Invalid email address";
+    }
+
+    if (!personal.phone) {
+      newErrors.phone = "Phone is required";
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0; // Return true if there are no errors
+  };
 
   const onChange = (e) => {
     const { name, value } = e.target;
@@ -22,9 +58,16 @@ export const PersonalInfo = () => {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    setCVInfo((cvInfo) => ({ ...cvInfo, personal }));
-    setItem(personal);
-    navigate("/admin/education");
+
+    // Validate the form before submitting
+    if (validateForm()) {
+      setItem(personal);
+      navigate("/admin/education", {
+        state: {
+          editMode: state?.editMode || false, //sending data with nagivation object
+        },
+      });
+    }
   };
 
   return (
@@ -47,6 +90,8 @@ export const PersonalInfo = () => {
               variant="outlined"
               onChange={onChange}
               required
+              error={!!errors.fullname}
+              helperText={errors.fullname}
             />
             <TextField
               id="outlined-basic"
@@ -56,6 +101,8 @@ export const PersonalInfo = () => {
               variant="outlined"
               onChange={onChange}
               required
+              error={!!errors.profession}
+              helperText={errors.profession}
             />
             <TextField
               id="outlined-basic"
@@ -64,6 +111,9 @@ export const PersonalInfo = () => {
               variant="outlined"
               name="email"
               onChange={onChange}
+              required
+              error={!!errors.email}
+              helperText={errors.email}
             />
             <TextField
               id="outlined-basic"
@@ -73,6 +123,8 @@ export const PersonalInfo = () => {
               onChange={onChange}
               variant="outlined"
               required
+              error={!!errors.phone}
+              helperText={errors.phone}
             />
             <TextField
               id="outlined-basic"
@@ -102,7 +154,7 @@ export const PersonalInfo = () => {
           </Box>
         </CardContent>
         <CardActions className="buttons">
-          <FormButtons onSubmit={onSubmit} />
+          <FormButtons onSubmit={onSubmit} editMode={state?.editMode || false}/>
         </CardActions>
       </Card>
     </div>

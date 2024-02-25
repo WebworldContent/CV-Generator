@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FormButtons } from "./FormButtons";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
@@ -9,15 +9,49 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import CVContext from "../../context/CVContext";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import useLocalStorage from "../helpers/customeHook";
 
 export const Education = () => {
   const [education, setEducation] = useState({});
-  const { setCVInfo } = useContext(CVContext);
-  const { setItem } = useLocalStorage("education");
+  const [errors, setErrors] = useState({});
+  const { state = {} } = useLocation();
+  const { getItem, setItem } = useLocalStorage("education");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const storedData = getItem("education");
+    const hasStoredInfo = !!storedData && Object.keys(storedData).length > 0;
+
+    if (hasStoredInfo) {
+      setEducation(storedData);
+    }
+  }, []);
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!education.college) {
+      newErrors.college = "College Name is required";
+    }
+
+    if (!education.studyField) {
+      newErrors.studyField = "Field of study is required";
+    }
+
+    if (!education.gradYear) {
+      newErrors.gradYear = "Graduation Year is required";
+    } else if (!/^\d{2}\/\d{2}\/\d{4}$/.test(education.gradYear)) { //Regex to check for required Date formate
+      newErrors.gradYear = "Invalid date format (DD/MM/YYYY)";
+    }
+
+    if (!education.degree) {
+      newErrors.degree = "Degree is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const onChange = (e) => {
     const { name, value } = e.target;
@@ -26,10 +60,17 @@ export const Education = () => {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    setCVInfo((cvInfo) => ({ ...cvInfo, education }));
-    setItem(education);
-    navigate("/admin/experience");
+
+    if (validateForm()) {
+      setItem(education);
+      navigate("/admin/experience", {
+        state: {
+          editMode: state?.editMode || false, //sending data with nagivation object
+        },
+      });
+    }
   };
+
   return (
     <div className="main-content">
       <Card style={{ height: "100%" }}>
@@ -48,7 +89,8 @@ export const Education = () => {
               value={education.college || ""}
               onChange={onChange}
               variant="outlined"
-              required
+              error={!!errors.college}
+              helperText={errors.college}
             />
             <TextField
               label="Field of study"
@@ -56,6 +98,8 @@ export const Education = () => {
               value={education.studyField || ""}
               onChange={onChange}
               variant="outlined"
+              error={!!errors.studyField}
+              helperText={errors.studyField}
             />
             <TextField
               label="Graduation Year"
@@ -64,7 +108,8 @@ export const Education = () => {
               value={education.gradYear}
               onChange={onChange}
               placeholder="DD/MM/YYYY"
-              required
+              error={!!errors.gradYear}
+              helperText={errors.gradYear}
             />
           </Box>
           <Box
@@ -84,6 +129,7 @@ export const Education = () => {
                 onChange={onChange}
                 label="Degree"
                 maxRows={4}
+                error={!!errors.degree}
               >
                 <MenuItem value="Bachelor of Art">Bachelor of Art</MenuItem>
                 <MenuItem value="Bachelor of Science">
@@ -97,7 +143,7 @@ export const Education = () => {
           </Box>
         </CardContent>
         <CardActions className="buttons">
-          <FormButtons onSubmit={onSubmit} />
+          <FormButtons onSubmit={onSubmit} editMode={state?.editMode || false} />
         </CardActions>
       </Card>
     </div>

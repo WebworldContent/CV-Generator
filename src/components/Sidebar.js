@@ -1,67 +1,38 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-export const Sidebar = ({ currentPageType }) => {
+const nav = ['personal', 'education', 'experience', 'skill'];
+
+export const Sidebar = ({ currentPageType, editMode = false }) => {
   const isActive = (path) => {
     return currentPageType === path;
   };
+
+  const listElement = (elem, indx) => (<li key={indx}
+    className={`side-nav-item ${
+      isActive(elem) ? "active" : ""
+    }`}
+  >
+    <span
+      className={`circle ${
+        isActive(elem) ? "active-circle" : ""
+      }`}
+    ></span>
+    <span>{elem.toUpperCase()}</span>
+  </li>);
+
+  const listWrapper = (element, indx) => {
+    if (!editMode) {
+      return <Link to={`/admin/${element}`} key={indx}>{listElement(element, indx)}</Link>
+    }
+    return listElement(element, indx);
+  } 
 
   return (
     <div className="sidebar">
       <nav>
         <ul className="side-nav-list">
-          <Link to="/admin/personal">
-            <li
-              className={`side-nav-item ${
-                isActive("personal") ? "active" : ""
-              }`}
-            >
-              <span
-                className={`circle ${
-                  isActive("personal") ? "active-circle" : ""
-                }`}
-              ></span>
-              <span>Personal Info</span>
-            </li>
-          </Link>
-          <Link to="/admin/education">
-            <li
-              className={`side-nav-item ${
-                isActive("education") ? "active" : ""
-              }`}
-            >
-              <span
-                className={`circle ${
-                  isActive("education") ? "active-circle" : ""
-                }`}
-              ></span>
-              <span>Education</span>
-            </li>
-          </Link>
-          <Link to="/admin/experience">
-            <li
-              className={`side-nav-item ${
-                isActive("experience") ? "active" : ""
-              }`}
-            >
-              <span
-                className={`circle ${
-                  isActive("experience") ? "active-circle" : ""
-                }`}
-              ></span>
-              <span>Experience</span>
-            </li>
-          </Link>
-          <Link to="/admin/skill">
-            <li
-              className={`side-nav-item ${isActive("skill") ? "active" : ""}`}
-            >
-              <span
-                className={`circle ${isActive("skill") ? "active-circle" : ""}`}
-              ></span>
-              <span>Skills</span>
-            </li>
-          </Link>
+          {nav.map((list, indx) => listWrapper(list, indx))}
         </ul>
       </nav>
     </div>

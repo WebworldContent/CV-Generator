@@ -1,43 +1,77 @@
-import React, { useContext, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FormButtons } from "./FormButtons";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
-import Checkbox from "@mui/material/Checkbox";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import CVContext from "../../context/CVContext";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import useLocalStorage from "../helpers/customeHook";
 
 export const Experience = () => {
   const [experience, setExperience] = useState({});
-  const { setCVInfo } = useContext(CVContext);
-  const { setItem } = useLocalStorage("experience");
+  const [errors, setErrors] = useState({});
+  const { state = {} } = useLocation();
+  const { getItem, setItem } = useLocalStorage("experience");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const storedData = getItem("experience");
+    const hasStoredInfo = !!storedData && Object.keys(storedData).length > 0;
+
+    if (hasStoredInfo) {
+      setExperience(storedData);
+    }
+  }, []);
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!experience.job) {
+      newErrors.job = "Job Title is required";
+    }
+
+    if (!experience.employeer) {
+      newErrors.employeer = "Employer is required";
+    }
+
+    if (!experience.startDate) {
+      newErrors.startDate = "Start Date is required";
+    } else if (!/^\d{2}\/\d{2}\/\d{4}$/.test(experience.startDate)) { // Regex to check for date formate
+      newErrors.startDate = "Invalid date format (DD/MM/YYYY)";
+    }
+
+    if (!experience.presentDate && !experience.endDate) {
+      newErrors.endDate = "End Date is required";
+    } else if (
+      experience.endDate &&
+      !/^\d{2}\/\d{2}\/\d{4}$/.test(experience.endDate) // Regex to check for date formate
+    ) {
+      newErrors.endDate = "Invalid date format (DD/MM/YYYY)";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const onChange = (e) => {
     const { name, value } = e.target;
     setExperience((prevExperience) => ({ ...prevExperience, [name]: value }));
   };
 
-  const onChecked = (e) => {
-    const { name, checked } = e.target;
-    if (checked) {
-      setExperience((prevExperience) => ({
-        ...prevExperience,
-        [name]: checked,
-      }));
+  const onSubmit = (e) => {
+    e.preventDefault();
+
+    if (validateForm()) {
+      setItem(experience);
+      navigate("/admin/skill", {
+        state: {
+          editMode: state?.editMode || false,
+        },
+      });
     }
   };
 
-  const onSubmit = (e) => {
-    e.preventDefault();
-    setCVInfo((cvInfo) => ({ ...cvInfo, experience }));
-    setItem(experience);
-    navigate("/admin/skill");
-  };
   return (
     <div className="main-content">
       <Card style={{ height: "100%" }}>
@@ -56,15 +90,17 @@ export const Experience = () => {
               value={experience.job || ""}
               onChange={onChange}
               variant="outlined"
-              required
+              error={!!errors.job}
+              helperText={errors.job}
             />
             <TextField
-              label="Employeer"
+              label="Employer"
               name="employeer"
               value={experience.employeer || ""}
               onChange={onChange}
               variant="outlined"
-              required
+              error={!!errors.employeer}
+              helperText={errors.employeer}
             />
           </Box>
           <Box
@@ -77,11 +113,12 @@ export const Experience = () => {
             <TextField
               label="Start Date"
               variant="outlined"
-              name="stateDate"
-              value={experience.stateDate || ""}
+              name="startDate"
+              value={experience.startDate || ""}
               onChange={onChange}
               placeholder="DD/MM/YYYY"
-              required
+              error={!!errors.startDate}
+              helperText={errors.startDate}
             />
             <TextField
               label="End Date"
@@ -91,18 +128,8 @@ export const Experience = () => {
               onChange={onChange}
               placeholder="DD/MM/YYYY"
               disabled={experience.presentDate || false}
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={experience.presentDate || false}
-                  name="presentDate"
-                  value={experience.presentDate || ""}
-                  onChange={onChecked}
-                />
-              }
-              label="Present"
-              labelPlacement="Present"
+              error={!!errors.endDate}
+              helperText={errors.endDate}
             />
           </Box>
           <Box
@@ -115,6 +142,9 @@ export const Experience = () => {
             <TextField
               id="outlined-multiline-flexible"
               label="Work"
+              name="work"
+              value={experience.work || ""}
+              onChange={onChange}
               placeholder="What work you do here"
               multiline
               maxRows={4}
@@ -122,7 +152,10 @@ export const Experience = () => {
           </Box>
         </CardContent>
         <CardActions className="buttons">
-          <FormButtons onSubmit={onSubmit} />
+          <FormButtons
+            onSubmit={onSubmit}
+            editMode={state?.editMode || false}
+          />
         </CardActions>
       </Card>
     </div>

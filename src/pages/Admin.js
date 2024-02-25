@@ -1,17 +1,20 @@
 import React, { useEffect } from "react";
 import { Header } from "../components/Header";
 import { Sidebar } from "../components/Sidebar";
-import { Outlet, useMatch, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useMatch, useNavigate } from "react-router-dom";
 
 export default function Admin() {
   const navigate = useNavigate();
   const matchPath = useMatch("/admin/:pageType");
-  const {
-    params: { pageType = "" } = {},
-  } = matchPath || {};
+  const { state = {} } = useLocation();
+  const { params: { pageType = "" } = {} } = matchPath || {};
 
   useEffect(() => {
-    navigate("personal");
+    navigate("personal", {
+      state: {
+        editMode: state?.editMode || false,
+      },
+    });
   }, []);
 
   return (
@@ -19,7 +22,7 @@ export default function Admin() {
       <Header />
       <div className="admin-container">
         <div className="main">
-          <Sidebar currentPageType={pageType} />
+          <Sidebar currentPageType={pageType} editMode={state?.editMode || false}/>
           <Outlet />
         </div>
       </div>

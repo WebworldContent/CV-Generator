@@ -1,105 +1,149 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../assets/css/cvStyle.css";
 import { Header } from "../components/Header";
 import { PreviewButtons } from "../components/PreviewButtons";
 import useLocalStorage from "../components/helpers/customeHook";
-import CVContext from "../context/CVContext";
 import { useNavigate } from "react-router-dom";
+import CircularProgress from "@mui/material/CircularProgress";
 
 export default function Preview() {
   const [data, setData] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [hideForPrint, setHideForPrint] = useState(false);
   const { getItem } = useLocalStorage();
-  const { cvInfo, setCVInfo } = useContext(CVContext);
   const navigate = useNavigate();
-
-  console.log(data);
 
   useEffect(() => {
     const fetchCVData = () => {
-      const cvData = {};
-      const collection = ["personal", "education", "experience", "skill"];
-      collection.forEach((key) => {
-        cvData[key] = getItem(key);
-      });
+      try {
+        setLoading(true);
+        const cvData = {};
+        const collection = ["personal", "education", "experience", "skill"];
+        collection.forEach((key) => {
+          cvData[key] = getItem(key);
+        });
 
-      return cvData;
+        return cvData;
+      } catch (error) {
+        console.log(error);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const isCVEmpty = Object.keys(cvInfo).length;
-    const isFetchDataEmpty = Object.values(fetchCVData).every(
-      (item) => Object.keys(item).length === 0
+    const isFetchDataEmpty = Object.values(fetchCVData()).every(
+      (item) => item === undefined
     );
 
-    if (isCVEmpty && isFetchDataEmpty) {
+    if (isFetchDataEmpty) {
       navigate("/");
+      return;
     }
 
-    if (isCVEmpty) {
-      setData(cvInfo);
-    } else {
-      setData(fetchCVData());
-      setCVInfo(fetchCVData());
-    }
+    setData(fetchCVData());
   }, []);
+
+  const handlePrint = () => {
+    setHideForPrint(true);
+    setTimeout(() => window.print());
+  };
+
+  const isDataEmpty = Object.values(data).every(
+    (item) => item === undefined || Object.keys(item).length === 0
+  );
 
   const { personal, education, experience, skill } = data;
 
+  if (error) {
+    return <h1>Something Went Wrong, please try again!</h1>;
+  }
+
   return (
     <>
-      <Header />
-      <PreviewButtons />
-      <div className="container">
-        <div className="head">
-          <h1>Cadidate Name</h1>
-        </div>
-        <div className="wrapper">
-          <div className="main">
-            <div className="contact-info">
-              <h2 className="section-title">Contact Information</h2>
-              <ul>
-                <li>Email: your.email@example.com</li>
-                <li>Phone: (123) 456-7890</li>
-                <li>LinkedIn: linkedin.com/in/yourname</li>
-                <li>GitHub: github.com/yourusername</li>
-              </ul>
+      {!hideForPrint && <Header />}
+      {!hideForPrint && <PreviewButtons onPrint={handlePrint} />}
+      {loading && <CircularProgress />}
+      {!isDataEmpty && (
+        <div className="container">
+          <div className="head">
+            <h1>
+              {Object.keys(personal).length > 0 &&
+                personal.fullname.toUpperCase()}
+            </h1>
+          </div>
+          <div className="wrapper">
+            <div className="main">
+              {Object.keys(personal).length > 0 ? (
+                <div className="contact-info">
+                  <h2 className="section-title">Contact Information</h2>
+                  <ul>
+                    <li>Profession: {personal.profession}</li>
+                    <li>Email: {personal.email}</li>
+                    <li>Phone: {personal.phone}</li>
+                    <li>LinkedIn: {personal.social}</li>
+                    <li>Location: {personal.address}</li>
+                  </ul>
+                </div>
+              ) : (
+                ""
+              )}
+
+              {Object.keys(education).length > 0 ? (
+                <div className="education">
+                  <h2 className="section-title">Education</h2>
+                  <div className="section-content">
+                    <h3>{education.college.toUpperCase()}</h3>
+                    <p>{education.studyField}</p>
+                    <p>{education.degree}</p>
+                    <p>Graduation Year: {education.gradYear}</p>
+                  </div>
+                </div>
+              ) : (
+                ""
+              )}
+
+              {Object.keys(experience).length > 0 ? (
+                <div className="experience">
+                  <h2 className="section-title">Work Experience</h2>
+                  <div className="section-content">
+                    <h3>{experience.job}</h3>
+                    <p>Employeer: {experience.employeer}</p>
+                    <p>
+                      Duration: {experience.startDate} - {experience.endDate}
+                    </p>
+                    <p>{experience.work}</p>
+                  </div>
+                </div>
+              ) : (
+                ""
+              )}
             </div>
 
-            <div className="education">
-              <h2 className="section-title">Education</h2>
-              <div className="section-content">
-                <h3>University Name</h3>
-                <p>Degree in Computer Science</p>
-                <p>Graduation Year: 2022</p>
-              </div>
-            </div>
-
-            <div className="experience">
-              <h2 className="section-title">Work Experience</h2>
-              <div className="section-content">
-                <h3>Company Name</h3>
-                <p>Position: Web Developer</p>
-                <p>Duration: June 2021 - Present</p>
-                <p>Description of responsibilities and achievements.</p>
-              </div>
+            <div className="sidebar">
+              {Object.keys(skill).length > 0 ? (
+                <div className="skills">
+                  <h2 className="section-title">Skills</h2>
+                  <div className="section-content">
+                    <ul>
+                      {skill.skills.map((data, indx) => (
+                        <li key={indx}>{data}</li>
+                      ))}
+                      <h2 className="section-title">Languages</h2>
+                      <p>{skill.language.trim()}</p>
+                      <h2 className="section-title">Soft Skills</h2>
+                      <p>{skill.softSkill.trim()}</p>
+                    </ul>
+                  </div>
+                </div>
+              ) : (
+                ""
+              )}
             </div>
           </div>
-
-          <div className="sidebar">
-            <div className="skills">
-              <h2 className="section-title">Skills</h2>
-              <div className="section-content">
-                <ul>
-                  <li>HTML5, CSS3</li>
-                  <li>JavaScript, jQuery</li>
-                  <li>React.js, Node.js</li>
-                  <li>Git, GitHub</li>
-                  <li>Responsive Web Design</li>
-                </ul>
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }

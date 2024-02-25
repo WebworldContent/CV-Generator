@@ -3,7 +3,7 @@ import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import { useNavigate } from "react-router-dom";
 
-export const PreviewButtons = () => {
+export const PreviewButtons = ({ onPrint }) => {
   const navigate = useNavigate();
   return (
     <Stack
@@ -13,10 +13,21 @@ export const PreviewButtons = () => {
       justifyContent={"center"}
       marginTop={5}
     >
-      <Button variant="contained" onClick={() => navigate("/admin")}>
+      <Button
+        variant="contained"
+        onClick={() =>
+          navigate("/admin", {
+            state: {
+              editMode: true,
+            },
+          })
+        }
+      >
         Edit
       </Button>
-      <Button variant="contained">Download</Button>
+      <Button variant="contained" onClick={onPrint}>
+        Download
+      </Button>
     </Stack>
   );
 };

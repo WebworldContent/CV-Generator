@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FormButtons } from "./FormButtons";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
@@ -9,13 +9,12 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import CVContext from "../../context/CVContext";
-import { useNavigate } from "react-router-dom";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Chip from "@mui/material/Chip";
+import { useNavigate } from "react-router-dom";
 import useLocalStorage from "../helpers/customeHook";
 
-const skills = [
+const skillsList = [
   "ReactJs",
   "NodeJs",
   "Blockchain",
@@ -26,34 +25,70 @@ const skills = [
   "AWS",
   "AR VR",
   "blogger",
-  "Writter",
+  "Writer",
   "marketing",
 ];
 
 export const Skills = () => {
   const [skillInfo, setSkillInfo] = useState({});
-  const [skill, setSkill] = useState([]);
-  const { setCVInfo } = useContext(CVContext);
-  const { setItem } = useLocalStorage("skill");
+  const [skills, setSkills] = useState([]);
+  const [errors, setErrors] = useState({});
+  const { getItem, setItem } = useLocalStorage("skill");
   const navigate = useNavigate();
+
+  const isAllSectionsDone = () => {
+    const sections = [getItem('personal'), getItem('education'), getItem('experience')];
+    return sections.every((section) => !!section);
+  };
+
+  useEffect(() => {
+    const storedData = getItem("skill");
+    const hasStoredInfo = !!storedData && Object.keys(storedData).length > 0;
+
+    if (hasStoredInfo) {
+      setSkillInfo(storedData);
+      setSkills(storedData.skills || []);
+    }
+  }, []);
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (skillInfo.softSkill && skillInfo.softSkill.length > 255) {
+      newErrors.softSkill = "Soft Skills should be 255 characters or less";
+    }
+
+    if (skillInfo.language && skillInfo.language.length > 255) {
+      newErrors.language = "Languages should be 255 characters or less";
+    }
+
+    if (!skills || skills.length === 0) {
+      newErrors.skills = "At least one skill is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const onChange = (e) => {
     const { name, value } = e.target;
-    setSkillInfo((preSkill) => ({ ...preSkill, [name]: value }));
+    setSkillInfo((prevSkill) => ({ ...prevSkill, [name]: value }));
   };
 
-  const onSkillSelect = (e) => {
-    const { value } = e.target;
-    setSkill(typeof value === "string" ? value.split(",") : value);
+  const onSkillSelect = (selectedSkills) => {
+    setSkills(selectedSkills);
+    setSkillInfo((prevSkill) => ({ ...prevSkill, skills: selectedSkills }));
   };
 
   const onSubmit = (e) => {
     e.preventDefault();
-    setSkillInfo((prevSkill) => ({ ...prevSkill, skills: skill }));
-    setCVInfo((cvInfo) => ({ ...cvInfo, skill: skillInfo }));
-    setItem(skillInfo);
-    navigate("/preview");
+
+    if (validateForm()) {
+      setItem(skillInfo);
+      navigate("/preview");
+    }
   };
+
   return (
     <div className="main-content">
       <Card style={{ height: "100%" }}>
@@ -72,7 +107,9 @@ export const Skills = () => {
               name="softSkill"
               value={skillInfo.softSkill || ""}
               onChange={onChange}
-              placeholder="speaking/writing/reading"
+              placeholder="speaking,writing,reading"
+              error={!!errors.softSkill}
+              helperText={errors.softSkill}
             />
             <TextField
               label="Languages"
@@ -80,6 +117,9 @@ export const Skills = () => {
               value={skillInfo.language || ""}
               onChange={onChange}
               variant="outlined"
+              placeholder="hindi,english,spanish"
+              error={!!errors.language}
+              helperText={errors.language}
             />
           </Box>
           <Box
@@ -90,12 +130,12 @@ export const Skills = () => {
             autoComplete="off"
           >
             <FormControl style={{ width: 300, marginLeft: 30 }}>
-              <InputLabel id="Skills">Skills</InputLabel>
+              <InputLabel id="skills">Skills</InputLabel>
               <Select
                 labelId="skills"
                 multiple
                 id="skills"
-                value={skill}
+                value={skills}
                 name="skills"
                 label="Skills"
                 input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
@@ -106,10 +146,12 @@ export const Skills = () => {
                     ))}
                   </Box>
                 )}
-                onChange={onSkillSelect}
+                onChange={(e) => onSkillSelect(e.target.value)}
                 maxRows={4}
+                error={!!errors.skills}
+                helperText={errors.skills}
               >
-                {skills.map((name) => (
+                {skillsList.map((name) => (
                   <MenuItem key={name} value={name}>
                     {name}
                   </MenuItem>
@@ -119,7 +161,7 @@ export const Skills = () => {
           </Box>
         </CardContent>
         <CardActions className="buttons">
-          <FormButtons onSubmit={onSubmit} isLastPage />
+          <FormButtons onSubmit={onSubmit} isLastPage disablebtn={!isAllSectionsDone()}/>
         </CardActions>
       </Card>
     </div>
