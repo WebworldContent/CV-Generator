@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Header } from "../components/Header";
 import { Sidebar } from "../components/Sidebar";
 import { Outlet, useLocation, useMatch, useNavigate } from "react-router-dom";
@@ -9,24 +9,15 @@ export default function Admin() {
   const { state = {} } = useLocation();
   const { params: { pageType = "" } = {} } = matchPath || {};
 
-  const memoizedNavigate = useCallback(
-    (editMode) => {
-      navigate("personal", {
-        state: {
-          editMode: editMode || false,
-        },
-      });
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
-
   useEffect(() => {
-    const { editMode } = state;
-    memoizedNavigate(editMode);
+    navigate("personal", {
+      state: {
+        editMode: state?.editMode || false,
+      },
+    });
     // Below comment is to silent unwanted dependency warning
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [memoizedNavigate]);
+  }, []);
 
   return (
     <>
