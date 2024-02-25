@@ -22,7 +22,10 @@ export default function Admin() {
       <Header />
       <div className="admin-container">
         <div className="main">
-          <Sidebar currentPageType={pageType} editMode={state?.editMode || false}/>
+          <Sidebar
+            currentPageType={pageType}
+            editMode={state?.editMode || false}
+          />
           <Outlet />
         </div>
       </div>

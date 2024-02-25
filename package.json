@@ -1,7 +1,7 @@
 {
   "name": "cv-generator",
   "version": "0.1.0",
-  "homepage": "https://WebworldContent.github.io/CV-Generator",
+  "homepage": "https://WebworldContent.github.io/cvGenerator",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.11.3",
