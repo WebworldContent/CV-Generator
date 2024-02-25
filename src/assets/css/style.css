@@ -151,4 +151,12 @@ h1 {
     .btn {
         font-size: 14px;
     }
+
+    .main .sidebar {
+        width: 0%;
+    }
+
+    .main .main-content {
+        width: 100%; 
+    }
 }
